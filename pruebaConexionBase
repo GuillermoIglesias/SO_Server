@@ -1,0 +1,21 @@
+
+hostname = "localhost"
+username = "postgres"
+password = "jazzbebe123"
+database = "prueba"
+
+import psycopg2
+
+conn= psycopg2.connect(host=hostname, user=username, password=password, dbname=database )
+
+cur=conn.cursor()
+cur.execute("select nombre, clave from usuarios where nombre='josefa';")
+resultado = cur.fetchall()
+conn.commit()
+
+nombre=resultado[0][0]
+clave=resultado[0][1]
+print (nombre)
+print (clave)
+cur.close()
+conn.close()
