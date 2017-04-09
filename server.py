@@ -7,7 +7,7 @@ import sys
 from _thread import *
 
 # Funcion para manejar conecciones por threads.
-def ClientThread(conn):
+def ClientThread(conn,addr):
 	# Enviar mensaje al cliente conectado
 	#msg_conn_true = "Conectado al server existosamente"
 	#conn.send(msg_conn_true.enconde())
@@ -20,7 +20,7 @@ def ClientThread(conn):
 			break
 
         # Imprime en consola servidor mensaje recibido        
-		print ("from connected  user: " + str(data))
+		print ("from " + str(addr) + " : " + str(data))
             
         # Procesa mensaje recibido             
 		data = str(data).upper()         
@@ -35,14 +35,14 @@ def ClientThread(conn):
 def Main():
 	# IP Server y puerto
 	host = "127.0.0.1"
-	port = 5003
+	port = 5004
      
-    # Se crea el socket, luego se bindea al host y puerto
+    # Se crea el socket INET de tipo STREAM, luego se bindea al host y puerto
 	mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	mySocket.bind((host,port))
 
    	# Comenzar escuchando socket
-	mySocket.listen(2)
+	mySocket.listen(5)
 
     # Mantener conexion con el cliente
 	while True:
@@ -51,7 +51,7 @@ def Main():
 		print ("Connection from: " + str(addr))
 
         # Iniciar un nuevo thread
-		start_new_thread(ClientThread,(conn,))
+		start_new_thread(ClientThread,(conn,addr))
 
     # Cierra socket para finalizar    
 	mySocket.close()
