@@ -1,6 +1,10 @@
 import socket
 
-def SocketReconnect(mySocket):
+# IP Server y puerto
+host = "127.0.0.1"
+port = 5035
+
+def SocketReconnect(mySocket,host,port):
     try:
         mySocket.connect((host,port))
         return True       
@@ -8,32 +12,55 @@ def SocketReconnect(mySocket):
         return False  
  
 def Main():
-    host = '127.0.0.1'
-    port = 5004           
+    while True:
 
-    exit = False
+        print ('Conectando al servidor...')
 
-    while exit == False:
-
-        print ('Conectando al servidor')
-
+        # Welcome 
         while True:
             try:
                 mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 mySocket.connect((host,port))
-                print ('Conectado')
+                data = mySocket.recv(1024).decode()
+                if data:               
+                    print (data)
+                
+                msgWelcome = mySocket.recv(1024).decode()
+                if msgWelcome:               
+                    print (msgWelcome)
+                
                 break        
             except:
-                continue    
+                continue
+
+        # Menu login/register
+        while True:
+            op_input = input('> ')
+
+            try:
+                mySocket.send(op_input.encode())
+                data = mySocket.recv(1024).decode()
+                
+                if data:               
+                    print (data)
+                
+                if op_input == 'salir':
+                    mySocket.close()
+                    return
+            
+            except:
+                print ('Servidor desconectado')
+                break
+
                
         while True:
 
-            message = input(' -> ')
+            message = input('> ')
 
-            if message == 'q':
+            if message == 'salir':
                 print ('Desconectado')
-                exit = True
-                break
+                mySocket.close()
+                return
 
             try:
                 mySocket.send(message.encode())
@@ -46,7 +73,7 @@ def Main():
                 break
 
             
-    mySocket.close()
+    
  
 if __name__ == '__main__':
     Main()
