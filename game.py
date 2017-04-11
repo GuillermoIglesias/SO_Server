@@ -108,6 +108,41 @@ def Register(conn,addr):
 	return
 
 def Battle(conn,addr):
+	# Elige monstruo
+	monster = random.randint(1,5)
+	cur.execute("SELECT name,maxhp,atk FROM Monster where id = %s;",(monster,))
+	datos_monster = cur.fetchall()
+	name_monster = datos_monster[0][0]
+	hp_monster = datos_monster[0][1]	
+	atk_monster = datos_monster[0][2]
+
+	conn.send(name_monster.encode())
+	conn.send(hp_monster.encode())
+	conn.send(atk_monster.encode())
+
+	msgMonster = ("      D  D     \n"
+	"      D  D     \n"
+	"     DDDDDD    \n"
+	"    DD-DD-DD   \n"
+	"    DDDDDDDD   \n"
+	"     DD--DD    \n"
+	"  D   DDDD   D \n"
+	"   D DDDDDD D  \n"
+	"    DDDDDDDD   \n"
+	"   DDDDDDDDDD  \n"
+	"   DDDDDDDDDD  \n"
+	"    DDDDDDDD   \n"
+	"     DDDDDD    \n"
+	"     DD  DD    \n"
+	"     DD  DD    \n"
+	"     DDD DDD   \n")
+
+	conn.send(msgMonster.encode())
+	while True:
+		msgBattle = "+ ATACA !!!!"
+		conn.send(msgBattle.encode())
+		
+
 	return
 
 
@@ -124,6 +159,22 @@ def Main():
 	except:
 		print("Error")
 
+	print ("      D  D     \n"
+	"      D  D     \n"
+	"     DDDDDD    \n"
+	"    DD-DD-DD   \n"
+	"    DDDDDDDD   \n"
+	"     DD--DD    \n"
+	"  D   DDDD   D \n"
+	"   D DDDDDD D  \n"
+	"    DDDDDDDD   \n"
+	"   DDDDDDDDDD  \n"
+	"   DDDDDDDDDD  \n"
+	"    DDDDDDDD   \n"
+	"     DDDDDD    \n"
+	"     DD  DD    \n"
+	"     DD  DD    \n"
+	"     DDD DDD   \n")
 
 if __name__ == '__main__':
 	Main()
