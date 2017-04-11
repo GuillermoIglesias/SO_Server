@@ -35,7 +35,7 @@ def Main():
 
         # Menu login/register
         while True:
-            op_input = input('> ')
+            op_input = input('>> ')
 
             try:
                 mySocket.send(op_input.encode())
@@ -47,6 +47,9 @@ def Main():
                 if op_input == 'salir':
                     mySocket.close()
                     return
+
+                if data == '+ Usuario creado exitosamente':
+                    break
             
             except:
                 print ('Servidor desconectado')
@@ -55,7 +58,7 @@ def Main():
                
         while True:
 
-            message = input('> ')
+            message = input('>> ')
 
             if message == 'salir':
                 print ('Desconectado')

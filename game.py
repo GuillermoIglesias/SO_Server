@@ -1,4 +1,5 @@
 import psycopg2
+import re
 
 hostname = "localhost"
 username = "postgres"
@@ -50,17 +51,41 @@ def Logout(conn,addr):
 
 def Register(conn,addr):
 
+	# Pedir username
 	msgRegUser = "+ Ingresa Username: "
 	conn.send(msgRegUser.encode())
 
+	# Recibir username
+	username = str(conn.recv(1024).decode())
 
+	# Pedir email
 	msgRegMail = "+ Ingresa Email: "
 	conn.send(msgRegMail.encode())
 
+	# Validar direccion email (formato)
+	while True:
+		mail = str(conn.recv(1024).decode())
+		# Validacion email
+		if re.match('^[(a-z0-9\_\-\.)]+@[(a-z0-9\_\-\.)]+\.[(a-z)]{2,15}$',mail.lower()):
+			break
+		else:
+			# Solicitar email nuevamente en caso de error
+			msgRegMail = "+ Error: correo invalido\n+ Ingresa Email: "
+			conn.send(msgRegMail.encode())
+	
+	# Pedir password
 	msgRegPass = "+ Ingresa Password: "
 	conn.send(msgRegPass.encode())
 
-	msgSuccess = "+ Usuario creado exitosamente +"
+	# Recibir password
+	password = str(conn.recv(1024).decode())	
+
+	# Se inserta nuevo usuario a la base de datos
+	cur.execute("INSERT INTO Player(username,mail,pass) VALUES (%s,%s,%s);",(username,mail,password))
+
+	# Mensaje de exito
+	print("Creado usuario " + username + " desde: " + str(addr))
+	msgSuccess = "+ Usuario creado exitosamente"
 	conn.send(msgSuccess.encode())
 
 	return
@@ -89,6 +114,10 @@ def Main():
 	nombre=resultado
 	print (nombre)
 
+	print ("+ Error: correo invalido\n+ Ingresa Email: ")
+
 
 if __name__ == '__main__':
 	Main()
+
+

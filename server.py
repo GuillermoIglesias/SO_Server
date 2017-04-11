@@ -10,7 +10,6 @@ from _thread import *
 host = "127.0.0.1"
 port = 5035
 
-
 # Funcion para manejar conecciones por threads.
 def ClientThread(conn,addr):
 	# Enviar mensaje al cliente conectado
