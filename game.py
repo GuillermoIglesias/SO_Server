@@ -1,5 +1,6 @@
 import psycopg2
 import re
+import random
 
 hostname = "localhost"
 username = "postgres"
@@ -112,7 +113,9 @@ def Register(conn,addr):
 
 	return
 
-def Battle(conn,addr):
+def Battle(id_usr):
+	msgInicio=("+ Inicia batalla:")
+
 	# Elige monstruo
 	monster = random.randint(1,5)
 	cur.execute("SELECT name,maxhp,atk FROM Monster where id = %s;",(monster,))
@@ -121,9 +124,20 @@ def Battle(conn,addr):
 	hp_monster = datos_monster[0][1]	
 	atk_monster = datos_monster[0][2]
 
+	# Datos usuario
+	cur.execute("SELECT hp,atk FROM stats where id= %s",(id_usr,))
+	datos_usuario = cur.fetchall()
+	hp_usr = datos_usuario[0][0]
+	atk_usr = datos_usuario[0][1]
+
+	conexion.commit()
+
 	conn.send(name_monster.encode())
 	conn.send(hp_monster.encode())
 	conn.send(atk_monster.encode())
+
+	conn.send(hp_usr.encode())
+	conn.send(atk_usr())
 
 	msgMonster = ("      D  D     \n"
 	"      D  D     \n"
@@ -144,9 +158,22 @@ def Battle(conn,addr):
 
 	conn.send(msgMonster.encode())
 	while True:
-		msgBattle = "+ ATACA !!!!"
+		# Pide ataque
+		msgBattle = "+ Selecciona un ataque: "
+		msgAtk1 ="+ [piedra]"
+		msgAtk1 ="+ [papel]"
+		msgAtk1 ="+ [tijera]"
 		conn.send(msgBattle.encode())
+
+		# Recibir ataque
+		atk =  str(conn.recv(1024).decode())
 		
+		try:
+			
+
+
+		except:
+
 
 	return
 
