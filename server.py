@@ -8,7 +8,7 @@ from _thread import *
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5035
+port = 5040
 
 # Funcion para manejar conecciones por threads.
 def ClientThread(conn,addr):

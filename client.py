@@ -2,7 +2,7 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5035
+port = 5040
 
 def SocketReconnect(mySocket,host,port):
     try:
@@ -30,6 +30,7 @@ def Main():
                     print (msgWelcome)
                 
                 break        
+            
             except:
                 continue
 
@@ -69,7 +70,7 @@ def Main():
                 mySocket.send(message.encode())
                 data = mySocket.recv(1024).decode()
                 if data:               
-                    print ('Recibido por servidor: ' + data)
+                    print ('+ Recibido por servidor: ' + data)
             
             except:
                 print ('Servidor desconectado')

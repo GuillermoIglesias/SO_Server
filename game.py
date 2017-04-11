@@ -23,24 +23,40 @@ def Welcome(conn,addr):
 	return
 
 def Login(conn,addr):
-	validate = False
 
-	while validate == False:
-		msgUser = "+ Ingresa Username: "
-		conn.send(msgUser.encode())
+	# Pedir username
+	msgUser = "+ Ingresa Username: "
+	conn.send(msgUser.encode())
 
-		username = conn.recv(1024).decode()
+	while True:
+		# Recibir username
+		username = str(conn.recv(1024).decode())
 
+		# Pedir password
 		msgPass = "+ Ingresa Password: "
 		conn.send(msgPass.encode())
 
-		password = conn.recv(1024).decode()
-		# chequear la base #
+		# Recibir password
+		password = str(conn.recv(1024).decode())
+		
+		try:
+			# Realizar consulta a la base de datos
+			cur.execute("SELECT pass FROM player WHERE username = %s;",(username,))
+			result 	   = cur.fetchall()
+			passResult = result[0][0]
 
-		# if chequear == True:
-		# 	validate == True
-		#	break
-		# msgError = "+ Username y/o Password incorrectos"
+			# Validar resultado consulta
+			if passResult == password:
+				print("Usuario: " + username + " validado desde: " + str(addr))
+				msgSuccess = "+ Ingresado correctamente"
+				conn.send(msgSuccess.encode())
+				break
+
+		except:
+			# Error al ingresar usuario, preguntar nuevamente
+			msgError = "+ Error: username y/o password incorrectos\n+ Ingresa Username: "
+			conn.send(msgError.encode())
+		
 
 	return
 
@@ -81,7 +97,8 @@ def Register(conn,addr):
 	password = str(conn.recv(1024).decode())	
 
 	# Se inserta nuevo usuario a la base de datos
-	cur.execute("INSERT INTO Player(username,mail,pass) VALUES (%s,%s,%s);",(username,mail,password))
+	cur.execute("INSERT INTO player(username,mail,pass) VALUES(%s,%s,%s);",(username,mail,password))
+	conexion.commit()
 
 	# Mensaje de exito
 	print("Creado usuario " + username + " desde: " + str(addr))
@@ -97,24 +114,15 @@ def Battle(conn,addr):
 
 # Solo para pruebas #
 def Main():
-	msg1 = ("+-------------------------------+\n"
-	"|  Bienvenido a Socket Dungeon  |\n"
-	"|                               |\n"
-	"| Elige una opcion:             |\n"
-	"| 1.- Ingresar                  |\n"
-	"| 2.- Nuevo Usuario             |\n"
-	"| 3.- Salir                     |\n"
-	"+-------------------------------+")
-
-	print (msg1)
-
-	cur.execute("select * from monster")
-	resultado = cur.fetchall()
-	conexion.commit()
-	nombre=resultado
-	print (nombre)
-
-	print ("+ Error: correo invalido\n+ Ingresa Email: ")
+	
+	try:
+		cur.execute("select pass from player where username = 'coco'")
+		resultado = cur.fetchall()
+		conexion.commit()
+		nombre=resultado[0][0]
+		print (nombre)
+	except:
+		print("Error")
 
 
 if __name__ == '__main__':
