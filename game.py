@@ -98,6 +98,11 @@ def Register(conn,addr):
 
 	# Se inserta nuevo usuario a la base de datos
 	cur.execute("INSERT INTO player(username,mail,pass) VALUES(%s,%s,%s);",(username,mail,password))
+	# Se ingresa su stats
+	cur.execute("SELECT id from player where username= %s;",(username,))
+	id_username = cur.fetchall()
+	id_usr = id_username[0][0]
+	cur.execute("INSERT INTO stats(id,hp,atk,level) VALUES(%s,500,20,1);",(id_usr,))
 	conexion.commit()
 
 	# Mensaje de exito
