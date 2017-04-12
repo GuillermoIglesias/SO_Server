@@ -15,7 +15,7 @@ TimeoutStopSec=5
 [Install]
 WantedBy=multi-user.target
 
-$ systemctl status socketdungeon.Service
+$ systemctl status socketdungeon.service
 
 $ sudo service socketdungeon start
 $ sudo service socketdungeon restart
