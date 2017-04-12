@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------------- #
-# ----------------------- Creacion de servicio Ubuntu 16.04----------------------- #
+# ----------------------- Creacion de servicio Ubuntu 16.04 ---------------------- #
 # -------------------------------------------------------------------------------- #
 
-$ sudo nano /lib/systemd/system/socketdungeon.Service
+$ sudo nano /lib/systemd/system/socketdungeon.service
 
 [Unit]
 Description=Socket Dungeon
