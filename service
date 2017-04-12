@@ -1,0 +1,157 @@
+# -------------------------------------------------------------------------------- #
+# ----------------------- Creacion de servicio Ubuntu 16.04----------------------- #
+# -------------------------------------------------------------------------------- #
+
+$ sudo nano /lib/systemd/system/socketdungeon.Service
+
+[Unit]
+Description=Socket Dungeon
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/nazorth/socketdungeon/server.py
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+$ systemctl status socketdungeon.Service
+
+$ sudo service socketdungeon start
+$ sudo service socketdungeon restart
+$ sudo service socketdungeon stop
+
+
+
+
+# -------------------------------------------------------------------------------- #
+# -----IGNORAR: Respaldo de informacion, no funcionaron en ubuntu 16.04 ---------- #
+# -------------------------------------------------------------------------------- #
+
+# Script template para daemon
+
+socketMonster = /home/nazorth/SocketMonster/  # Carpeta donde se encuentra
+startup = $socketMonster/bin/startup.sh       # Codigo para iniciar programa
+shutdown = $socketMonster/bin/shutdown.sh     # Codigo para parar el programa
+
+start(){
+        echo -n $"Comenzando servicio: "
+        $startup
+        RETVAL=$?
+        echo
+}
+
+stop(){
+        echo -n $"Deteniendo servicio: "
+        $shutdown
+        RETVAL=$?
+        echo
+}
+
+restart(){
+        stop
+        sleep 10
+        start
+}
+
+# Ejecuta el parametro entregado START/STOP/RESTART
+case "$1" in
+start)
+        start
+        ;;
+stop)
+        stop
+        ;;
+restart)
+        restart
+        ;;
+*)
+        echo $"Usar: $0 {start|stop|restart}
+        exit 1
+esac
+
+exit 0
+
+# ------------------------------------------------------- #
+
+NAME=socketdungeon
+DESC="Socket Dungeon"
+PIDFILE="/var/run/${NAME}.pid"
+LOGFILE="/var/log/${NAME}.log"
+
+# Se indicas que se ejecutara un archivo python3.5
+DAEMON="/usr/bin/python3"
+# Ruta del archivo
+DAEMON_OPTS="/home/nazorth/socketdungeon/server.py"
+
+START_OPTS="--start --background --make-pidfile --pidfile ${PIDFILE} --exec ${D$
+STOP_OPTS="--stop --pidfile ${PIDFILE}"
+
+test -x $DAEMON || exit 0
+
+set -e
+
+case "$1" in
+    start)
+        echo -n "Iniciando ${DESC}: "
+        start-stop-daemon $START_OPTS >> $LOGFILE
+        echo "$NAME."
+        ;;
+    stop)
+        echo -n "Deteniendo $DESC: "
+        start-stop-daemon $STOP_OPTS
+        echo "$NAME."
+        rm -f $PIDFILE
+        ;;
+    restart|force-reload)
+        echo -n "Reiniciando $DESC: "
+        start-stop-daemon $STOP_OPTS
+        sleep 1
+        start-stop-daemon $START_OPTS >> $LOGFILE
+        echo "$NAME."
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+
+
+# ------------------------------------------------------- #
+
+
+https://github.com/Sonarr/Sonarr/wiki/Autostart-on-Linux#systemd
+
+[Unit]
+Description=Socket Dungeon
+After=syslog.target network.target
+
+[Service]
+User=socketdungeon
+Group=nazorth
+
+Type=simple
+ExecStart=/usr/bin/python3 --debug /home/nazorth/socketdungeon/server.py -nobro$
+TimeoutStopSec=20
+KillMode=process
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+
+
+# --------------------------------------------------------- #
+
+Socket:
+
+https://gist.github.com/drmalex07/28de61c95b8ba7e5017c
+
+
+# ---------------------------------------------------------- #
+
+
+
+
