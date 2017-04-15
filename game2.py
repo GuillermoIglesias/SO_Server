@@ -27,6 +27,7 @@ def Login(conn,addr):
 
 	# Pedir username
 	msgUser = "+ Ingresa Username: "
+	idResult = 0
 	conn.send(msgUser.encode())
 
 	while True:
@@ -49,7 +50,7 @@ def Login(conn,addr):
 
 			# Validar resultado consulta
 			if passResult == password:
-				print("Usuario: " + username + " validado desde: " + str(addr))
+				print ("Usuario: " + username + " validado desde: " + str(addr))
 				msgSuccess = "+ Ingresado correctamente"
 				conn.send(msgSuccess.encode())
 				return idResult
@@ -59,7 +60,7 @@ def Login(conn,addr):
 			msgError = "+ Error: username y/o password incorrectos\n+ Ingresa Username: "
 			conn.send(msgError.encode())
 		
-
+	print(idResult)
 	return idResult
 
 def Logout(conn,addr):
@@ -105,6 +106,7 @@ def Register(conn,addr):
 	id_username = cur.fetchall()
 	id_usr = id_username[0][0]
 	cur.execute("INSERT INTO stats(id,hp,atk,level) VALUES(%s,500,20,1);",(id_usr,))
+	cur.execute("INSERT INTO currentuser(id,current_hp) values(%s,%s);",(id_usr,res_vid_usr))
 	conexion.commit()
 
 	# Mensaje de exito
@@ -116,57 +118,54 @@ def Register(conn,addr):
 
 def Battle(id_usr):
 	msgInicio=("+ Inicia batalla:")
+	conn.send(msgInicio.encode())
 
 	# Elige monstruo
 	monster = random.randint(1,5)
-	cur.execute("SELECT name,maxhp,atk FROM Monster where id = %s;",(monster,))
+	cur.execute("SELECT name,atk,hp FROM Monster where id = %s;",(monster,))
 	datos_monster = cur.fetchall()
 	name_monster = datos_monster[0][0]
-	hp_monster = datos_monster[0][1]	
-	atk_monster = datos_monster[0][2]
+	atk_monster = datos_monster[0][1]
+	hp_monster = datos_monster[0][2]
 
 	# Datos usuario
-	cur.execute("SELECT hp,atk FROM stats where id= %s",(id_usr,))
+	cur.execute("SELECT atk,hp FROM stats where id= %s",(id_usr,))
 	datos_usuario = cur.fetchall()
-	hp_usr = datos_usuario[0][0]
-	atk_usr = datos_usuario[0][1]
+	atk_usr = datos_usuario[0][0]
+	hp_user = datos_usuario[0][1]
 
-	conexion.commit()
+	# Datos CurrentMonster
+	cur.execute("SELECT current_hp FROM currentmonster where id = %s;",(monster,))
+	datos_curr_mon = cur.fetchall()
+	res_vid_mon = int(datos_curr_mon[0][0])
 
-	conn.send(name_monster.encode())
-	conn.send(hp_monster.encode())
-	conn.send(atk_monster.encode())
+	# Datos CurrentUser
+	cur.execute("SELECT current_hp FROM currentuser where id = %s;",(id_usr,))
+	datos_curr_usr = cur.fetchall()
+	res_vid_usr = int(datos_curr_usr[0][0])
 
-	conn.send(hp_usr.encode())
-	conn.send(atk_usr.encode())
-
-	msgMonster = ("      D  D     \n"
-	"      D  D     \n"
-	"     DDDDDD    \n"
-	"    DD-DD-DD   \n"
-	"    DDDDDDDD   \n"
-	"     DD--DD    \n"
-	"  D   DDDD   D \n"
-	"   D DDDDDD D  \n"
-	"    DDDDDDDD   \n"
-	"   DDDDDDDDDD  \n"
-	"   DDDDDDDDDD  \n"
-	"    DDDDDDDD   \n"
-	"     DDDDDD    \n"
-	"     DD  DD    \n"
-	"     DD  DD    \n"
-	"     DDD DDD   \n")
+	msgMonster = ("  <>=======()    \n"
+"(/\___   /|\\          ()==========<>_ \n"
+"      \_/ | \\        //|\   ______/ \)\n"
+"        \_|  \\      // | \_/ \n"
+"          \|\/|\_   //  /\/ \n"
+"           (00)\ \_//   / \n"
+"          //_/\_\/ /   | \n"
+"         @@/  |=\  \   | \n"
+"              \_=\_ \  | \n"
+"                \==\ \ |\_ \n"
+"             __(\===\(   )\ \n"
+"            (((~) __(_/    | \n"
+"                 (((~) \   / \n"
+"                _______/  / \n"
+"                '--------' \n")
 
 	conn.send(msgMonster.encode())
 
 	# Matriz con datos de ganados 'g' o perdedor 'p'
 	mtr_atk = [['0','p','g'],['g','0','p'],['p','p','0']]
-	res_vid_usr = int(hp_usr)
-	res_vid_mon = int(hp_monster)
 
-	# Insertan los datos en las tablas CurrentMonster y CurrentUser
-	cur.execute("INSERT INTO currentmonseter(id,current_hp) values(%s,%s);",(monster,res_vid_mon))
-	cur.execute("INSERT INTO currentuser(id,current_hp) values(%s,%s);",(id_usr,res_vid_usr))
+	
 
 	while True:
 		
@@ -216,7 +215,8 @@ def Battle(id_usr):
 				# Pierde
 				else:
 					msgLose=("+ Perdiste\n")
-					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(res_vid_usr,id_usr))
+					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
+					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,id_usr))
 					conn.send(msgLose.encode())
 
 			# Se el usuario gana
@@ -237,7 +237,8 @@ def Battle(id_usr):
 				# Gana
 				else:
 					msgWin = ("+ Ganaste!\n")
-					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(res_vid_mon,monster))
+					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
+					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,id_usr))
 					conn.send(msgWin.encode())
 						
 			# Si hacen el mismo ataque
