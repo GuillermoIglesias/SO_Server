@@ -4,7 +4,7 @@ import random
 
 hostname = "localhost"
 username = "postgres"
-password = "jazzbebe123"
+password = "dragon"
 database = "SocketDungeon"
 
 conexion = psycopg2.connect(host=hostname,user=username,password=password,dbname=database)
@@ -53,15 +53,14 @@ def Login(conn,addr):
 				print ("Usuario: " + username + " validado desde: " + str(addr))
 				msgSuccess = "+ Ingresado correctamente"
 				conn.send(msgSuccess.encode())
-				return idResult
+				return str(idResult)
 
 		except:
 			# Error al ingresar usuario, preguntar nuevamente
 			msgError = "+ Error: username y/o password incorrectos\n+ Ingresa Username: "
 			conn.send(msgError.encode())
 		
-	print(idResult)
-	return idResult
+
 
 def Logout(conn,addr):
 	conn.send("+ Desconectado".encode())
@@ -114,22 +113,20 @@ def Register(conn,addr):
 	msgSuccess = "+ Usuario creado exitosamente"
 	conn.send(msgSuccess.encode())
 
-	return id_usr
+	return str(id_usr)
 
-def Battle(id_usr):
-	msgInicio=("+ Inicia batalla:")
-	conn.send(msgInicio.encode())
+def Battle(id_usr,conn):
 
 	# Elige monstruo
-	monster = random.randint(1,5)
-	cur.execute("SELECT name,atk,hp FROM Monster where id = %s;",(monster,))
+	monster = str(random.randint(1,5))
+	cur.execute("SELECT name,atk,maxhp FROM Monster where id = %s;",(monster,))
 	datos_monster = cur.fetchall()
 	name_monster = datos_monster[0][0]
 	atk_monster = datos_monster[0][1]
 	hp_monster = datos_monster[0][2]
 
 	# Datos usuario
-	cur.execute("SELECT atk,hp FROM stats where id= %s",(id_usr,))
+	cur.execute("SELECT atk,hp FROM stats where id= %s;",(str(id_usr),))
 	datos_usuario = cur.fetchall()
 	atk_usr = datos_usuario[0][0]
 	hp_user = datos_usuario[0][1]
@@ -144,7 +141,7 @@ def Battle(id_usr):
 	datos_curr_usr = cur.fetchall()
 	res_vid_usr = int(datos_curr_usr[0][0])
 
-	msgMonster = ("  <>=======()    \n"
+	'''msgMonster = ("  <>=======()    \n"
 "(/\___   /|\\          ()==========<>_ \n"
 "      \_/ | \\        //|\   ______/ \)\n"
 "        \_|  \\      // | \_/ \n"
@@ -158,9 +155,12 @@ def Battle(id_usr):
 "            (((~) __(_/    | \n"
 "                 (((~) \   / \n"
 "                _______/  / \n"
-"                '--------' \n")
+"                '--------' \n"
+" [fuego]\n"
+" [agua]\n"
+" [planta]\n")
 
-	conn.send(msgMonster.encode())
+	conn.send(msgMonster.encode())'''
 
 	# Matriz con datos de ganados 'g' o perdedor 'p'
 	mtr_atk = [['0','p','g'],['g','0','p'],['p','p','0']]
@@ -268,22 +268,21 @@ def Main():
 	except:
 		print("Error")
 
-	print ("      D  D     \n"
-	"      D  D     \n"
-	"     DDDDDD    \n"
-	"    DD-DD-DD   \n"
-	"    DDDDDDDD   \n"
-	"     DD--DD    \n"
-	"  D   DDDD   D \n"
-	"   D DDDDDD D  \n"
-	"    DDDDDDDD   \n"
-	"   DDDDDDDDDD  \n"
-	"   DDDDDDDDDD  \n"
-	"    DDDDDDDD   \n"
-	"     DDDDDD    \n"
-	"     DD  DD    \n"
-	"     DD  DD    \n"
-	"     DDD DDD   \n")
+	print ("<>=======()    \n"
+"(/\___   /|\\          ()==========<>_ \n"
+"      \_/ | \\        //|\   ______/ \)\n"
+"        \_|  \\      // | \_/ \n"
+"          \|\/|\_   //  /\/ \n"
+"           (00)\ \_//   / \n"
+"          //_/\_\/ /   | \n"
+"         @@/  |=\  \   | \n"
+"              \_=\_ \  | \n"
+"                \==\ \ |\_ \n"
+"             __(\===\(   )\ \n"
+"            (((~) __(_/    | \n"
+"                 (((~) \   / \n"
+"                _______/  / \n"
+"                '--------' \n")
 
 if __name__ == '__main__':
 	Main()

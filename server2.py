@@ -3,35 +3,35 @@
 # http://www.binarytides.com/python-socket-server-code-example/
 
 import socket
-import game
+import game2
 from _thread import *
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5040
+port = 5046
 
 # Funcion para manejar conecciones por threads.
 def ClientThread(conn,addr):
 	# Enviar mensaje al cliente conectado
 	msg_conn_true = "+ Conectado al servidor existosamente\n"
 	conn.send(msg_conn_true.encode())
-	result = 0
-	game.Welcome(conn,addr)
+	result = ''
+	game2.Welcome(conn,addr)
 
 	# Loop login/register
 	while True:
 		log_op = conn.recv(1024).decode()
 		
 		if log_op == 'ingresar':
-			result = game.Login(conn,addr)
+			result = game2.Login(conn,addr)
 			break
 		
 		elif log_op == 'registrar':
-			result = game.Register(conn,addr)
+			result = game2.Register(conn,addr)
 			break
 		
 		elif log_op == 'salir':
-			game.Logout(conn,addr)
+			game2.Logout(conn,addr)
 			return
 
 		else:
@@ -41,8 +41,8 @@ def ClientThread(conn,addr):
 	while True:
 
 		
-		game.Battle(result)
-		conn.send(result.encode())
+		game2.Battle(result,conn)
+
 
 
              

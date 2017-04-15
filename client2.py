@@ -3,7 +3,7 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5040
+port = 5046
 
 def SocketReconnect(mySocket,host,port):
     try:
@@ -63,9 +63,10 @@ def Main():
                
         while True:
 	
-            inicio = mySocket.recv(1024).decode()
-            message = input('>> 2')
-
+            startBattle = mySocket.recv(1024).decode()
+            print ('+ Recibido por servidor: ' + startBattle)
+           
+            message = input('>> ')
 
 
             try:
