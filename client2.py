@@ -76,10 +76,17 @@ def Main():
                 if data:               
                     print (data)
 
-                if data == '+ Ganaste!':               
-                    break
-                if data == '+ Perdiste':               
-                    break
+                if data == '+ Ganaste!' or data == '+ Perdiste':
+                	while True:
+                		question = mySocket.recv(1024).decode()
+                		print (question)	
+                		message = input('>> ')
+                		mySocket.send(message.encode())
+                		if message == 'Y' or message == 'y' or message == 'yes':
+                			break
+                		elif message == 'N' or message == 'n' or message =='no':
+                			mySocket.close()
+                			return
 
            	#if message == 'salir':
 			#mySocket.close()

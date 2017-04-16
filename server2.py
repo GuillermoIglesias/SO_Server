@@ -3,7 +3,7 @@
 # http://www.binarytides.com/python-socket-server-code-example/
 
 import socket
-import game
+import game2
 import random
 from _thread import *
 
@@ -17,22 +17,22 @@ def ClientThread(conn,addr):
 	msg_conn_true = "+ Conectado al servidor existosamente\n"
 	conn.send(msg_conn_true.encode())
 	result = ""
-	game.Welcome(conn,addr)
+	game2.Welcome(conn,addr)
 
 	# Loop login/register
 	while True:
 		log_op = conn.recv(1024).decode()
 		
 		if log_op == 'ingresar':
-			result = game.Login(conn,addr)
+			result = game2.Login(conn,addr)
 			break
 		
 		elif log_op == 'registrar':
-			result = game.Register(conn,addr)
+			result = game2.Register(conn,addr)
 			break
 		
 		elif log_op == 'salir':
-			game.Logout(conn,addr)
+			game2.Logout(conn,addr)
 			return
 
 		else:
@@ -41,12 +41,23 @@ def ClientThread(conn,addr):
 	# Loop infinito para escuchar al cliente continuamente 
 	monster = str(random.randint(1,5))	
 	while True:
+		game2.Battle(result,monster,conn)	
+
+		msgContinue = "+ Deseas continuar? [Y/N]"
+		while True:
+			
+			conn.send(msgContinue.encode())
+			ans = conn.recv(1024).decode()
+			if ans == 'Y' or ans == 'y' or ans == 'yes':
+				break
+			elif ans == 'N' or ans == 'n' or ans =='no':
+				return
+			else:
+				msgContinue = "+ Opcion invalida, intenta nuevamente\n+ Deseas continuar? [Y/N]"
+				continue
 
 
-		game.Battle(result,monster,conn)
 
-
-             
     # Termina loop         
 	conn.close()
 
