@@ -2,7 +2,7 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5040
+port = 5044
 
 def SocketReconnect(mySocket,host,port):
     try:
@@ -51,6 +51,9 @@ def Main():
 
                 if data == '+ Usuario creado exitosamente':
                     break
+
+                if data == '+ Ingresado correctamente':
+                    break
             
             except:
                 print ('Servidor desconectado')
@@ -58,19 +61,35 @@ def Main():
 
                
         while True:
-
+	
+            startBattle = mySocket.recv(1024).decode()
+            print(startBattle)
+               
             message = input('>> ')
 
-            if message == 'salir':
-                print ('Desconectado')
-                mySocket.close()
-                return
+
 
             try:
                 mySocket.send(message.encode())
                 data = mySocket.recv(1024).decode()
                 if data:               
-                    print ('+ Recibido por servidor: ' + data)
+                    print (data)
+
+                if data == '+ Ganaste!' or data == '+ Perdiste':
+                	while True:
+                		question = mySocket.recv(1024).decode()
+                		print (question)	
+                		message = input('>> ')
+                		mySocket.send(message.encode())
+                		if message == 'Y' or message == 'y' or message == 'yes':
+                			break
+                		elif message == 'N' or message == 'n' or message =='no':
+                			mySocket.close()
+                			return
+
+           	#if message == 'salir':
+			#mySocket.close()
+            #	return
             
             except:
                 print ('Servidor desconectado')
