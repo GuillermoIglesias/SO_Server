@@ -4,7 +4,7 @@ import random
 
 hostname = "localhost"
 username = "postgres"
-password = "dragon"
+password = "jazzbebe123"
 database = "SocketDungeon"
 
 conexion = psycopg2.connect(host=hostname,user=username,password=password,dbname=database)
@@ -53,14 +53,15 @@ def Login(conn,addr):
 				print ("Usuario: " + username + " validado desde: " + str(addr))
 				msgSuccess = "+ Ingresado correctamente"
 				conn.send(msgSuccess.encode())
-				return str(idResult)
+				return idResult
 
 		except:
 			# Error al ingresar usuario, preguntar nuevamente
 			msgError = "+ Error: username y/o password incorrectos\n+ Ingresa Username: "
 			conn.send(msgError.encode())
 		
-
+	print(idResult)
+	return idResult
 
 def Logout(conn,addr):
 	conn.send("+ Desconectado".encode())
@@ -113,12 +114,15 @@ def Register(conn,addr):
 	msgSuccess = "+ Usuario creado exitosamente"
 	conn.send(msgSuccess.encode())
 
-	return str(id_usr)
+	return id_usr
 
-def Battle(id_usr,conn):
+def Battle(id_usr,monster,conn):
+	#msgInicio=("+ Inicia batalla:\n")
+	#conn.send(msgInicio.encode())
+	atk_usr = int(-1)
 
 	# Elige monstruo
-	monster = str(random.randint(1,5))
+
 	cur.execute("SELECT name,atk,maxhp FROM Monster where id = %s;",(monster,))
 	datos_monster = cur.fetchall()
 	name_monster = datos_monster[0][0]
@@ -128,24 +132,27 @@ def Battle(id_usr,conn):
 	# Datos usuario
 	cur.execute("SELECT atk,hp FROM stats where id= %s;",(str(id_usr),))
 	datos_usuario = cur.fetchall()
-	atk_usr = datos_usuario[0][0]
+	atk_user = datos_usuario[0][0]
 	hp_user = datos_usuario[0][1]
 
 	# Datos CurrentMonster
 	cur.execute("SELECT current_hp FROM currentmonster where id = %s;",(monster,))
 	datos_curr_mon = cur.fetchall()
 	res_vid_mon = int(datos_curr_mon[0][0])
+	print(res_vid_mon)
 
 	# Datos CurrentUser
-	cur.execute("SELECT current_hp FROM currentuser where id = %s;",(id_usr,))
+	cur.execute("SELECT current_hp FROM currentuser where id = %s;",(str(id_usr),))
 	datos_curr_usr = cur.fetchall()
 	res_vid_usr = int(datos_curr_usr[0][0])
+	print(res_vid_usr)
 
-	'''msgMonster = ("  <>=======()    \n"
-"(/\___   /|\\          ()==========<>_ \n"
-"      \_/ | \\        //|\   ______/ \)\n"
-"        \_|  \\      // | \_/ \n"
-"          \|\/|\_   //  /\/ \n"
+	'''msgMonster = ("+ Inicia batalla:\n"
+"  <>=======( )    \n"
+"(/\___   /|\ \          ()==========<>_ \n"
+"      \_/ | \ \        //|\   ______/ \)\n"
+"        \_|  \ \      // | \_/ \n"
+"          \|\/| \_   //  /\/ \n"
 "           (00)\ \_//   / \n"
 "          //_/\_\/ /   | \n"
 "         @@/  |=\  \   | \n"
@@ -156,101 +163,124 @@ def Battle(id_usr,conn):
 "                 (((~) \   / \n"
 "                _______/  / \n"
 "                '--------' \n"
-" [fuego]\n"
-" [agua]\n"
-" [planta]\n")
+"+ Selecciona un ataque: \n"
+				   " [fuego]\n"
+				   " [agua]\n"
+				   " [planta]\n")
 
 	conn.send(msgMonster.encode())'''
 
 	# Matriz con datos de ganados 'g' o perdedor 'p'
 	mtr_atk = [['0','p','g'],['g','0','p'],['p','p','0']]
+			
 
 	
 
-	while True:
+	#while True:
 		
-		try:
-			# Pide ataque
-			msgBattle = ("+ Selecciona un ataque: \n"
-				   " [fuego]\n"
-				   " [agua]\n"
-				   " [planta]\n")
+	try:
+		# Pide ataque
+		msgBattle = ("+ Selecciona un ataque: \n"
+			   " [fuego]\n"
+			   " [agua]\n"
+			   " [planta]\n")
 
-			conn.send(msgBattle.encode())
-
-
-			# Recibir ataque
-			atk =  str(conn.recv(1024).decode())
-			
-			atk_monster = random.randint(0,2)
-			# 0 agua, 1 fuego, 2 planta
-
-			# Verifica nuemro de ataque, dentro de la matriz
-			if atk == 'fuego':
-				atk_usr = int(1)
-			elif atk == 'agua':
-				atk_usr = int(0)
-			else:
-				atk_usr = int(2)
-
-			# Busca dentro de la matriz
-			battle = mtr_atk[atk_monster][atk_usr]
+		conn.send(msgBattle.encode())
 
 
-			# Si el usuario pierde
-			if battle == 'p':
-				# Se resta su vida
-				res_vid_usr = res_vid_usr - int(atk_monster)
-		
-				# Mientras su vida sea mayor a cero
-				if res_vid_usr > 0:
-					msg1=("+ Has perdido " + str(atk_monster)+ "de hp\n+ Te queda "
-					+str(res_vid_usr)+"de hp\n+ A " +str(name_monster) 
-					+" le queda "+ (res_vid_mon)+" de hp \n")
+		# Recibir ataque
+		atk =  conn.recv(1024).decode()
+		atkMonster = random.randint(0,2)
+		# 0 agua, 1 fuego, 2 planta
+		print (atk)
+		print (atkMonster)
+		# Verifica numero de ataque, dentro de la matriz
+		if atk == 'fuego':
+			atk_usr = int(1)
+			battle = mtr_atk[atkMonster][atk_usr]
+		elif atk == 'agua':
+			atk_usr = int(0)
+			battle = mtr_atk[atkMonster][atk_usr]
+		elif atk == 'planta':
+			atk_usr = int(2)
+			battle = mtr_atk[atkMonster][atk_usr]
+		else:
+			battle = '-1'
 
+		print (atk_usr)
+
+		# Busca dentro de la matriz
+		#battle = mtr_atk[atkMonster][atk_usr]
+		print(battle)
+
+
+		# Si el usuario pierde
+		if battle == 'p':
+			# Se resta su vida
+			res_vid_usr = res_vid_usr - int(atk_monster)
+			print(res_vid_usr)
+	
+			# Mientras su vida sea mayor a cero
+			if res_vid_usr > 0:
+				msg1=("+ Has perdido " + str(atk_monster)+ " de hp\n+ Te queda "
+				+str(res_vid_usr)+" de hp\n+ A " +str(name_monster) 
+				+" le queda "+ str(res_vid_mon)+" de hp \n")
 					# Se actualizan los datos de CurrentUser
-					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(res_vid_usr,id_usr))
-					conn.send(mg1.encode())
-
+				cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(res_vid_usr,str(id_usr)))
+				conexion.commit()
+				conn.send(msg1.encode())
+				
 				# Pierde
-				else:
-					msgLose=("+ Perdiste\n")
-					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
-					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,id_usr))
-					conn.send(msgLose.encode())
+			else:
+				msgLose=("+ Perdiste")
+				cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
+				cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
+				conexion.commit()
+				conn.send(msgLose.encode())
+				return
 
-			# Se el usuario gana
-			elif battle == 'g':
-				# Resta vida a monstruo
-				res_vid_mon = res_vid_mon - int(atk_usr)
-
+		# Se el usuario gana
+		elif battle == 'g':
+			# Resta vida a monstruo
+			res_vid_mon = res_vid_mon - int(atk_user)
+			print(res_vid_mon)
 				# Mientras la vida de monstruo sea mayor a cero
-				if res_vid_mon > 0:
-					msg2=("+ " + str(name_monster) + " ha perdido " + str(atk_usr)+ 
-					"de hp\n+ Te queda "+str(res_vid_usr)+"de hp\n+ A " 
-					+str(name_monster) +" le queda "+ (res_vid_mon)+" de hp \n")
+			if res_vid_mon > 0:
+				msg2=("+ " + str(name_monster) + " ha perdido " + str(atk_user)+ 
+				" de hp\n+ Te queda "+str(res_vid_usr)+" de hp\n+ A " 
+				+str(name_monster) +" le queda "+ str(res_vid_mon)+" de hp \n")
 
-					# Se actualiza los datos de CurrentMonster
-					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(res_vid_mon,monster))
-					conn.send(mg2.encode())
+				# Se actualiza los datos de CurrentMonster
+				cur.execute("UPDATE currentmonster set current_hp= %s where id= %s; ",(res_vid_mon,monster))
+				conexion.commit()
+				conn.send(msg2.encode())
+				
+					
 
 				# Gana
-				else:
-					msgWin = ("+ Ganaste!\n")
-					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
-					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,id_usr))
-					conn.send(msgWin.encode())
-						
-			# Si hacen el mismo ataque
 			else:
-				msg3=("+ Ataques bloqueados\n")
-				conn.send(mg3.encode())
-
-
-		except:
-			# Mensaje Error
+				msgWin = ("+ Ganaste!")
+				cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
+				cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
+				conexion.commit()
+				conn.send(msgWin.encode())
+				return
+					
+			# Si hacen el mismo ataque
+		elif battle == '0':
+			msg3=("+ Ataques bloqueados")
+			conn.send(msg3.encode())
+				
+		else:
 			msgError = "+ Error: Al ingresar\n"
 			conn.send(msgError.encode())
+
+		
+	except:
+		# Mensaje Error
+		msgError = "+ Error: Al ingresar\n"
+		conn.send(msgError.encode())
+			
 
 	return
 
@@ -268,21 +298,22 @@ def Main():
 	except:
 		print("Error")
 
-	print ("<>=======()    \n"
-"(/\___   /|\\          ()==========<>_ \n"
-"      \_/ | \\        //|\   ______/ \)\n"
-"        \_|  \\      // | \_/ \n"
-"          \|\/|\_   //  /\/ \n"
-"           (00)\ \_//   / \n"
-"          //_/\_\/ /   | \n"
-"         @@/  |=\  \   | \n"
-"              \_=\_ \  | \n"
-"                \==\ \ |\_ \n"
-"             __(\===\(   )\ \n"
-"            (((~) __(_/    | \n"
-"                 (((~) \   / \n"
-"                _______/  / \n"
-"                '--------' \n")
+	print ("      D  D     \n"
+	"      D  D     \n"
+	"     DDDDDD    \n"
+	"    DD-DD-DD   \n"
+	"    DDDDDDDD   \n"
+	"     DD--DD    \n"
+	"  D   DDDD   D \n"
+	"   D DDDDDD D  \n"
+	"    DDDDDDDD   \n"
+	"   DDDDDDDDDD  \n"
+	"   DDDDDDDDDD  \n"
+	"    DDDDDDDD   \n"
+	"     DDDDDD    \n"
+	"     DD  DD    \n"
+	"     DD  DD    \n"
+	"     DDD DDD   \n")
 
 if __name__ == '__main__':
 	Main()
