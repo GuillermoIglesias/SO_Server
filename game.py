@@ -106,7 +106,7 @@ def Register(conn,addr):
 	id_username = cur.fetchall()
 	id_usr = id_username[0][0]
 	cur.execute("INSERT INTO stats(id,hp,atk,level) VALUES(%s,500,20,1);",(id_usr,))
-	cur.execute("INSERT INTO currentuser(id,current_hp) values(%s,%s);",(id_usr,res_vid_usr))
+	cur.execute("INSERT INTO currentuser(id,current_hp) values(%s,500);",(id_usr,))
 	conexion.commit()
 
 	# Mensaje de exito
@@ -245,7 +245,7 @@ def Battle(id_usr,monster,conn):
 			
 				# Pierde
 				else:
-					msgLose=("+ Perdiste")
+					msgLose=("+ Perdiste\n")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
@@ -273,7 +273,7 @@ def Battle(id_usr,monster,conn):
 
 				# Gana
 				else:
-					msgWin = ("+ Ganaste!")
+					msgWin = ("+ Ganaste! \n")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
