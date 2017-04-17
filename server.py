@@ -7,7 +7,7 @@ from _thread import *
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5053
+port = 5054
 
 # Funcion para manejar conecciones por threads.
 def ClientThread(conn,addr):
@@ -19,46 +19,57 @@ def ClientThread(conn,addr):
 
 	# Loop login/register
 	while True:
-		log_op = conn.recv(1024).decode()
-		
-		if log_op == 'ingresar':
-			result = game.Login(conn,addr)
-			break
-		
-		elif log_op == 'registrar':
-			result = game.Register(conn,addr)
-			break
-		
-		elif log_op == 'salir':
-			game.Logout(conn,addr)
-			return
+		try:
+			log_op = conn.recv(1024).decode()
+			
+			if log_op == 'ingresar':
+				result = game.Login(conn,addr)
+				break
+			
+			elif log_op == 'registrar':
+				result = game.Register(conn,addr)
+				break
+			
+			elif log_op == 'salir':
+				game.Logout(conn,addr)
+				return
 
-		else:
-			conn.send("+ Opcion invalida, intenta nuevamente".encode())
+			else:
+				conn.send("+ Opcion invalida, intenta nuevamente".encode())
+		except:
+			conn.close()
+			return
 
 	#monster = str(random.randint(1,5))	
 	monster = "2"
 
 	# Loop infinito para escuchar al cliente continuamente
 	while True:
+		try:
+			game.Battle(result,monster,conn)
+		except:
+			conn.close()
+			return
 
-		game.Battle(result,monster,conn)
+		try:
+			msgContinue = "+ Deseas continuar? [Y/N]"
+			while True:
+				conn.send(msgContinue.encode())
+				ans = conn.recv(1024).decode()
+				if ans == 'Y' or ans == 'y' or ans == 'yes':
+					break
+				elif ans == 'N' or ans == 'n' or ans =='no':
+					return
+				else:
+					msgContinue = "+ Opcion invalida, intenta nuevamente\n+ Deseas continuar? [Y/N]"
+					continue
+		except:
+			conn.close()
+			return
 
-		msgContinue = "\n+ Deseas continuar? [Y/N]"
-		while True:
-			conn.send(msgContinue.encode())
-			ans = conn.recv(1024).decode()
-			if ans == 'Y' or ans == 'y' or ans == 'yes':
-				break
-			elif ans == 'N' or ans == 'n' or ans =='no':
-				return
-			else:
-				msgContinue = "+ Opcion invalida, intenta nuevamente\n+ Deseas continuar? [Y/N]"
-				continue
-
-             
     # Termina loop         
 	conn.close()
+	return
 
 def Main():
 

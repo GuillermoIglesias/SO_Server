@@ -4,7 +4,7 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5053
+port = 5054
 
 def Main():
     while True:
@@ -67,7 +67,7 @@ def Main():
                 data = mySocket.recv(1024).decode()      
                 print (data)
 
-                if data == '\n+ Ganaste!\n' or data == '\n+ Perdiste\n':
+                if data == '\n+ Ganaste ^.^!\n' or data == '\n+ Perdiste x.x\n':
                 	while True:
                 		question = mySocket.recv(1024).decode()
                 		print (question)	

@@ -244,10 +244,10 @@ def Battle(id_usr,monster,conn):
 				# Mientras su vida sea mayor a cero
 				if res_vid_usr > 0:
 					msg1=("\n+ " + str(name_monster) + " a usado: " + str(atk_monster_name) + "\n+ Has perdido " +
-					 str(atk_monster)+ " de hp\n"
+					 str(atk_monster)+ " hp\n"
 					+"+ Te queda "
-					+str(res_vid_usr)+" de hp\n+ A " +str(name_monster) 
-					+" le queda "+ str(res_vid_mon)+" de hp \n")
+					+str(res_vid_usr)+" hp\n+ A " +str(name_monster) 
+					+" le queda "+ str(res_vid_mon)+" hp \n")
 					# Se actualizan los datos de CurrentUser
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(res_vid_usr,str(id_usr)))
 					conexion.commit()
@@ -255,7 +255,7 @@ def Battle(id_usr,monster,conn):
 			
 				# Pierde
 				else:
-					msgLose=("\n+ Perdiste\n")
+					msgLose=("\n+ Perdiste x.x\n")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
@@ -272,8 +272,8 @@ def Battle(id_usr,monster,conn):
 				if res_vid_mon > 0:
 					msg2=("\n+ " + str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ " + str(name_monster) + " ha perdido " 
 					+ str(atk_user)+ 
-					" de hp\n+ Te queda "+str(res_vid_usr)+" de hp\n+ A " 
-					+str(name_monster) +" le queda "+ str(res_vid_mon)+" de hp \n")
+					" hp\n+ Te queda "+str(res_vid_usr)+" hp\n+ A " 
+					+str(name_monster) +" le queda "+ str(res_vid_mon)+" hp \n")
 					# Se actualiza los datos de CurrentMonster
 					cur.execute("UPDATE currentmonster set current_hp= %s where id= %s; ",(res_vid_mon,monster))
 					conexion.commit()
@@ -283,7 +283,7 @@ def Battle(id_usr,monster,conn):
 
 				# Gana
 				else:
-					msgWin = ("\n+ Ganaste!\n")
+					msgWin = ("\n+ Ganaste ^.^!\n")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
