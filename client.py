@@ -1,16 +1,11 @@
+#!/usr/bin/python3
+
 import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5044
+port = 5053
 
-def SocketReconnect(mySocket,host,port):
-    try:
-        mySocket.connect((host,port))
-        return True       
-    except:
-        return False  
- 
 def Main():
     while True:
 
@@ -36,30 +31,29 @@ def Main():
 
         # Menu login/register
         while True:
-            op_input = input('>> ')
+            op_input = input('>>> ')
 
             try:
                 mySocket.send(op_input.encode())
-                data = mySocket.recv(1024).decode()
-                
-                if data:               
-                    print (data)
+                data = mySocket.recv(1024).decode()               
+                print (data)
                 
                 if op_input == 'salir':
                     mySocket.close()
                     return
 
-                if data == '+ Usuario creado exitosamente':
+                if data == '+ Usuario creado exitosamente' or data == '+ Ingresado correctamente':
                     break
 
-                if data == '+ Ingresado correctamente':
-                    break
             
             except:
                 print ('Servidor desconectado')
                 break
 
-               
+        # Imprime monstruo inicial
+        #monsterSprite = mySocket.recv(1024).decode()
+        #print(monsterSprite)
+        
         while True:
 	
             startBattle = mySocket.recv(1024).decode()
@@ -68,18 +62,16 @@ def Main():
             message = input('>> ')
 
 
-
             try:
                 mySocket.send(message.encode())
-                data = mySocket.recv(1024).decode()
-                if data:               
-                    print (data)
+                data = mySocket.recv(1024).decode()      
+                print (data)
 
-                if data == '+ Ganaste!' or data == '+ Perdiste':
+                if data == '\n+ Ganaste!\n' or data == '\n+ Perdiste\n':
                 	while True:
                 		question = mySocket.recv(1024).decode()
                 		print (question)	
-                		message = input('>> ')
+                		message = input('> ')
                 		mySocket.send(message.encode())
                 		if message == 'Y' or message == 'y' or message == 'yes':
                 			break

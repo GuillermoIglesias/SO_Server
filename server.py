@@ -1,6 +1,4 @@
-# LINKS INFORMACION
-# https://shakeelosmani.wordpress.com/2015/04/13/python-3-socket-programming-example/ 
-# http://www.binarytides.com/python-socket-server-code-example/
+#!/usr/bin/python3
 
 import socket
 import game
@@ -9,7 +7,7 @@ from _thread import *
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5044
+port = 5053
 
 # Funcion para manejar conecciones por threads.
 def ClientThread(conn,addr):
@@ -38,16 +36,16 @@ def ClientThread(conn,addr):
 		else:
 			conn.send("+ Opcion invalida, intenta nuevamente".encode())
 
-	# Loop infinito para escuchar al cliente continuamente 
-	monster = str(random.randint(1,5))	
-	while True:
+	#monster = str(random.randint(1,5))	
+	monster = "2"
 
+	# Loop infinito para escuchar al cliente continuamente
+	while True:
 
 		game.Battle(result,monster,conn)
 
 		msgContinue = "\n+ Deseas continuar? [Y/N]"
 		while True:
-			
 			conn.send(msgContinue.encode())
 			ans = conn.recv(1024).decode()
 			if ans == 'Y' or ans == 'y' or ans == 'yes':

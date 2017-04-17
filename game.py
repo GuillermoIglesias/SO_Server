@@ -1,24 +1,26 @@
+#!/usr/bin/python3
+
 import psycopg2
 import re
 import random
 
 hostname = "localhost"
 username = "postgres"
-password = "jazzbebe123"
+password = "dragon"
 database = "SocketDungeon"
 
 conexion = psycopg2.connect(host=hostname,user=username,password=password,dbname=database)
 cur      = conexion.cursor()
 
 def Welcome(conn,addr):
-	msgWelcome = ("+-------------------------------+\n"
-	"|  Bienvenido a Socket Dungeon  |\n"
-	"|                               |\n"
-	"| Elige una opcion:             |\n"
-	"| [ingresar]  : Iniciar sesion  |\n"
-	"| [registrar] : Nuevo usuario   |\n"
-	"| [salir]     : Salir del juego |\n"
-	"+-------------------------------+\n")
+	msgWelcome = (" +-------------------------------+\n"
+	" |  Bienvenido a Socket Dungeon  |\n"
+	" |                               |\n"
+	" | Elige una opcion:             |\n"
+	" | [ingresar]  : Iniciar sesion  |\n"
+	" | [registrar] : Nuevo usuario   |\n"
+	" | [salir]     : Salir del juego |\n"
+	" +-------------------------------+\n")
 
 	conn.send(msgWelcome.encode())
 	return
@@ -67,6 +69,26 @@ def Logout(conn,addr):
 	conn.send("+ Desconectado".encode())
 	conn.close()
 	return
+
+def MonsterSprite():
+	msgMonster = ("\n  <>=======( )    \n"
+		" (/\___   /|\ \          ()==========<>_ \n"
+		"       \_/ | \ \        //|\   ______/ \)\n"
+		"         \_|  \ \      // | \_/ \n"
+		"           \|\/| \_   //  /\/ \n"
+		"            (00)\ \_//   / \n"
+		"           //_/\_\/ /   | \n"
+		"          @@/  |=\  \   | \n"
+		"               \_=\_ \  | \n"
+		"                 \==\ \ |\_ \n"
+		"              __(\===\(   )\ \n"
+		"             (((~) __(_/    | \n"
+		"                  (((~) \   / \n"
+		"                 _______/  / \n"
+		"                 '--------' \n")
+	
+	return msgMonster
+
 
 def Register(conn,addr):
 
@@ -118,6 +140,8 @@ def Register(conn,addr):
 
 def Battle(id_usr,monster,conn):
 
+	sprite = True
+
 	while True:
 
 		#msgInicio=("+ Inicia batalla:\n")
@@ -151,27 +175,7 @@ def Battle(id_usr,monster,conn):
 		res_vid_usr = int(datos_curr_usr[0][0])
 		print("Vida inicial de usuarios: " + str(res_vid_usr))
 
-		'''msgMonster = ("+ Inicia batalla:\n"
-		"  <>=======( )    \n"
-		"(/\___   /|\ \          ()==========<>_ \n"
-		"      \_/ | \ \        //|\   ______/ \)\n"
-		"        \_|  \ \      // | \_/ \n"
-		"          \|\/| \_   //  /\/ \n"
-		"           (00)\ \_//   / \n"
-		"          //_/\_\/ /   | \n"
-		"         @@/  |=\  \   | \n"
-		"              \_=\_ \  | \n"
-		"                \==\ \ |\_ \n"
-		"             __(\===\(   )\ \n"
-		"            (((~) __(_/    | \n"
-		"                 (((~) \   / \n"
-		"                _______/  / \n"
-		"                '--------' \n"
-		"+ Selecciona un ataque: \n"
-				   " [fuego]\n"
-				   " [agua]\n"
-				   " [planta]\n")
-		conn.send(msgMonster.encode())'''
+		
 
 		# Matriz con datos de ganados 'g' o perdedor 'p'
 		mtr_atk=[['0','p','g'],['g','0','p'],['p','g','0']]
@@ -185,10 +189,16 @@ def Battle(id_usr,monster,conn):
 		
 		try:
 			# Pide ataque
-			msgBattle = ("+ Selecciona un ataque: \n"
-				   " [fuego]\n"
-				   " [agua]\n"
-				   " [planta]\n")
+			msgBattle = (" +-----------------------+\n"
+				   " | Selecciona un ataque: |\n"
+				   " | + [fuego]             |\n"
+				   " | + [agua]              |\n"
+				   " | + [planta]            |\n"
+			  	   " +-----------------------+\n")
+
+			if sprite == True:
+				msgBattle = MonsterSprite() + msgBattle
+				sprite = False
 
 			conn.send(msgBattle.encode())
 
@@ -233,7 +243,7 @@ def Battle(id_usr,monster,conn):
 
 				# Mientras su vida sea mayor a cero
 				if res_vid_usr > 0:
-					msg1=("+ " + str(name_monster) + " a usado: " + str(atk_monster_name) + "\n+ Has perdido " +
+					msg1=("\n+ " + str(name_monster) + " a usado: " + str(atk_monster_name) + "\n+ Has perdido " +
 					 str(atk_monster)+ " de hp\n"
 					+"+ Te queda "
 					+str(res_vid_usr)+" de hp\n+ A " +str(name_monster) 
@@ -245,7 +255,7 @@ def Battle(id_usr,monster,conn):
 			
 				# Pierde
 				else:
-					msgLose=("+ Perdiste\n")
+					msgLose=("\n+ Perdiste\n")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
@@ -260,7 +270,7 @@ def Battle(id_usr,monster,conn):
 				print("Vida restante de monstruo: " + str(res_vid_mon))
 					# Mientras la vida de monstruo sea mayor a cero
 				if res_vid_mon > 0:
-					msg2=("+ " + str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ " + str(name_monster) + " ha perdido " 
+					msg2=("\n+ " + str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ " + str(name_monster) + " ha perdido " 
 					+ str(atk_user)+ 
 					" de hp\n+ Te queda "+str(res_vid_usr)+" de hp\n+ A " 
 					+str(name_monster) +" le queda "+ str(res_vid_mon)+" de hp \n")
@@ -273,7 +283,7 @@ def Battle(id_usr,monster,conn):
 
 				# Gana
 				else:
-					msgWin = ("+ Ganaste! \n")
+					msgWin = ("\n+ Ganaste!\n")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
@@ -282,17 +292,15 @@ def Battle(id_usr,monster,conn):
 				
 			# Si hacen el mismo ataque
 			elif battle == '0':
-				msg3=("+ Ataques bloqueados")
+				msg3=("\n+ Ataques bloqueados\n")
 				conn.send(msg3.encode())
 			
 			else:
-				msgError = "+ Error: Al ingresar\n"
+				msgError = "\n+ Error: Valor invalido\n"
 				conn.send(msgError.encode())
 		
 		except:
-			# Mensaje Error
-			msgError = "+ Error: Al ingresar\n"
-			conn.send(msgError.encode())
+			continue
 		
 	return
 
@@ -310,22 +318,12 @@ def Main():
 	except:
 		print("Error")
 
-	print ("      D  D     \n"
-	"      D  D     \n"
-	"     DDDDDD    \n"
-	"    DD-DD-DD   \n"
-	"    DDDDDDDD   \n"
-	"     DD--DD    \n"
-	"  D   DDDD   D \n"
-	"   D DDDDDD D  \n"
-	"    DDDDDDDD   \n"
-	"   DDDDDDDDDD  \n"
-	"   DDDDDDDDDD  \n"
-	"    DDDDDDDD   \n"
-	"     DDDDDD    \n"
-	"     DD  DD    \n"
-	"     DD  DD    \n"
-	"     DDD DDD   \n")
+	print ("+-----------------------+\n"
+				   "| Selecciona un ataque: |\n"
+				   "| + [fuego]             |\n"
+				   "| + [agua]              |\n"
+				   "| + [planta]            |\n"
+			  	   "+-----------------------+\n")
 
 if __name__ == '__main__':
 	Main()
