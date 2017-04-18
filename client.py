@@ -4,69 +4,85 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5061
+port = 5072
 
 def Main():
-    while True:
+	# ID Usuario no logueado/registrado
+	validate = '-1'
 
-        print ('Conectando al servidor...')
+	while True:
+
+		print ('Conectando al servidor...')
 
         # Welcome 
-        while True:
-            try:
-                mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                mySocket.connect((host,port))
-                data = mySocket.recv(1024).decode()
-                if data:               
-                    print (data)
-                
-                msgWelcome = mySocket.recv(1024).decode()
-                if msgWelcome:               
-                    print (msgWelcome)
-                
-                break        
-            
-            except:
-                continue
+		while True:
+			try:
+				mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+				mySocket.connect((host,port))
+				
+				success = mySocket.recv(1024).decode()            
+				print (success)
 
-        # Menu login/register
-        while True:
-            op_input = input('-> ')
+				mySocket.send(validate.encode())
+				
+				msgWelcome = mySocket.recv(1024).decode()           
+				print (msgWelcome)
+				
+				break        
+			except:
+				continue
 
-            try:
-                mySocket.send(op_input.encode())
-                data = mySocket.recv(1024).decode()               
-                print (data)
-                
-                if op_input == 'salir':
-                    mySocket.close()
-                    return
+		print(":"+validate)
 
-                if data == '+ Usuario creado exitosamente' or data == '+ Ingresado correctamente':
-                    break
+		if validate == '-1':
+	        # Menu login/register
+			while True:
+				op_input = input('-> ')
 
-            
-            except:
-                print ('Servidor desconectado')
-                break
+				try:
+					mySocket.send(op_input.encode())
+				except:
+					print('Servidor desconectado')
 
-        
-        while True:
-	
-            startBattle = str(mySocket.recv(1024).decode())
-            print(startBattle)
-               
-            message = input('>> ')
+				try:
+					data = mySocket.recv(1024).decode()           
+					print (data)             
+					if op_input == 'salir':
+						mySocket.close()
+						return
+					if data[:18] == '+ Usuario validado':
+						validate = data[20:]
+						break      
+				except:
+					print ('Servidor desconectado')
+					break
 
-            try:
-                mySocket.send(message.encode())
-                data = str(mySocket.recv(1024).decode())      
-                print (data)
+		print("::"+validate)
 
-            
-            except:
-                print ('Servidor desconectado')
-                break
+
+		while True:
+
+			try:
+				startBattle = str(mySocket.recv(1024).decode())
+				print(startBattle)
+			except:
+				print ('Servidor desconectado')
+				break
+
+			message = input('>> ')	
+
+			try:
+				mySocket.send(message.encode())
+			except:
+				print ('Servidor desconectado')
+				break
+
+			try:
+				data = str(mySocket.recv(1024).decode())      
+				print (data)
+			except:
+				print ('Servidor desconectado')
+				break
 
             
     

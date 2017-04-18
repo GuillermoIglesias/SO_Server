@@ -13,17 +13,34 @@ conexion = psycopg2.connect(host=hostname,user=username,password=password,dbname
 cur      = conexion.cursor()
 
 def Welcome(conn,addr):
-	msgWelcome = (" +-------------------------------+\n"
-	" |  Bienvenido a Socket Dungeon  |\n"
-	" |                               |\n"
-	" | Elige una opcion:             |\n"
-	" | [ingresar]  : Iniciar sesion  |\n"
-	" | [registrar] : Nuevo usuario   |\n"
-	" | [salir]     : Salir del juego |\n"
-	" +-------------------------------+\n")
+	# Enviar mensaje al cliente conectado
+	msg_conn_true = "+ Conectado al servidor existosamente\n"
+	conn.send(msg_conn_true.encode())
+	
+	id_user = conn.recv(1024).decode()
 
-	conn.send(msgWelcome.encode())
-	return
+	if id_user == '-1':
+
+		msgWelcome = (" +-------------------------------+\n"
+		" |  Bienvenido a Socket Dungeon  |\n"
+		" |                               |\n"
+		" | Elige una opcion:             |\n"
+		" | [ingresar]  : Iniciar sesion  |\n"
+		" | [registrar] : Nuevo usuario   |\n"
+		" | [salir]     : Salir del juego |\n"
+		" +-------------------------------+\n")
+
+		conn.send(msgWelcome.encode())
+
+	else:
+		cur.execute("SELECT username from player where id= %s;",(id_user,))
+		id_usr = cur.fetchall()
+		id_usrname = id_user[0][0]
+		msgWelcome = ("+ Bienvenido " + str(id_usrname))
+
+		conn.send(msgWelcome.encode())
+	
+	return id_user
 
 def Login(conn,addr):
 
@@ -53,13 +70,13 @@ def Login(conn,addr):
 			# Validar resultado consulta
 			if passResult == password:
 				print ("Usuario: " + username + " validado desde: " + str(addr))
-				msgSuccess = "+ Ingresado correctamente"
+				msgSuccess = "+ Usuario validado: " + str(idResult)
 				conn.send(msgSuccess.encode())
 				return idResult
 
 		except:
 			# Error al ingresar usuario, preguntar nuevamente
-			msgError = "+ Error: username y/o password incorrectos\n+ Ingresa Username: "
+			msgError = "+ Error: username y/o password incorrectos\n\n+ Ingresa Username: "
 			conn.send(msgError.encode())
 		
 	print(idResult)
@@ -133,7 +150,7 @@ def Register(conn,addr):
 
 	# Mensaje de exito
 	print("Creado usuario " + username + " desde: " + str(addr))
-	msgSuccess = "+ Usuario creado exitosamente"
+	msgSuccess = "+ Usuario validado: " + str(id_usr)
 	conn.send(msgSuccess.encode())
 
 	return id_usr
@@ -191,9 +208,9 @@ def Battle(id_usr,monster,conn):
 			# Pide ataque
 			msgBattle = (" +-----------------------+\n"
 				   " | Selecciona un ataque: |\n"
-				   " | + [fuego]             |\n"
-				   " | + [agua]              |\n"
-				   " | + [planta]            |\n"
+				   " | + [1] - [fuego]       |\n"
+				   " | + [2] - [agua]        |\n"
+				   " | + [3] - [planta]      |\n"
 			  	   " +-----------------------+\n")
 
 			if sprite == True:
@@ -209,13 +226,13 @@ def Battle(id_usr,monster,conn):
 			print ("Ataque de usuario: " + str(atk))
 
 			# Verifica numero de ataque, dentro de la matriz
-			if atk == 'fuego':
+			if atk == 'fuego' or atk == '1':
 				atk_usr = int(1)
 				battle = mtr_atk[atkMonster][atk_usr]
-			elif atk == 'agua':
+			elif atk == 'agua' or atk == '2':
 				atk_usr = int(0)
 				battle = mtr_atk[atkMonster][atk_usr]
-			elif atk == 'planta':
+			elif atk == 'planta' or atk == '3':
 				atk_usr = int(2)
 				battle = mtr_atk[atkMonster][atk_usr]
 			else:
@@ -255,7 +272,7 @@ def Battle(id_usr,monster,conn):
 			
 				# Pierde
 				else:
-					msgLose=("\n+ Perdiste x.x\n")
+					msgLose=("+ Perdiste x.x")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
@@ -283,7 +300,7 @@ def Battle(id_usr,monster,conn):
 
 				# Gana
 				else:
-					msgWin = ("\n+ Ganaste ^.^!\n")
+					msgWin = ("+ Ganaste ^.^!")
 					cur.execute("UPDATE currentmonster set current_hp=%s where id=%s; ",(hp_monster,monster))
 					cur.execute("UPDATE currentuser set current_hp=%s where id=%s; ",(hp_user,str(id_usr)))
 					conexion.commit()
@@ -292,8 +309,7 @@ def Battle(id_usr,monster,conn):
 				
 			# Si hacen el mismo ataque
 			elif battle == '0':
-				msg3=("\n+"+ str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ Ataques han sido bloqueados\n" + "+ Te quedan " +
-				str(res_vid_usr) + " de hp\n+ A" + str(name_monster) + " le quedan "+ str(res_vid_mon) + " de hp\n")
+				msg3=("\n+ Ataques bloqueados\n")
 				conn.send(msg3.encode())
 			
 			else:
@@ -304,6 +320,26 @@ def Battle(id_usr,monster,conn):
 			continue
 		
 	return
+
+def Continue(conn):
+	while True:
+			
+		msgContinue = "\n+ Deseas continuar? [Y/N]"
+		conn.send(msgContinue.encode())
+		ans = conn.recv(1024).decode()
+			
+		if ans == 'Y' or ans == 'y' or ans == 'yes':
+			msgYes = "\n+ Reiniciando Monstruo +\n"
+			conn.send(msgYes.encode())
+			return True
+		
+		elif ans == 'N' or ans == 'n' or ans =='no':
+			return False
+		
+		else:
+			msgError = "+ Opcion invalida, intenta nuevamente\n"
+			conn.send(msgError.encode())
+			continue
 
 
 
@@ -325,6 +361,10 @@ def Main():
 				   "| + [agua]              |\n"
 				   "| + [planta]            |\n"
 			  	   "+-----------------------+\n")
+
+	hola = '+ Usuario validado: 23'
+	print (hola[:18])
+	print (hola[20:])
 
 if __name__ == '__main__':
 	Main()

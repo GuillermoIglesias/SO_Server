@@ -7,64 +7,53 @@ from _thread import *
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5054
+port = 5072
 
-# Funcion para manejar conecciones por threads.
+# Funcion para manejar conexiones por threads.
 def ClientThread(conn,addr):
-	# Enviar mensaje al cliente conectado
-	msg_conn_true = "+ Conectado al servidor existosamente\n"
-	conn.send(msg_conn_true.encode())
-	result = ""
-	game.Welcome(conn,addr)
+	# Iniciar conexion con cliente	
+	id_user = game.Welcome(conn,addr)
 
-	# Loop login/register
-	while True:
-		try:
-			log_op = conn.recv(1024).decode()
-			
-			if log_op == 'ingresar':
-				result = game.Login(conn,addr)
-				break
-			
-			elif log_op == 'registrar':
-				result = game.Register(conn,addr)
-				break
-			
-			elif log_op == 'salir':
-				game.Logout(conn,addr)
+	if id_user == '-1':
+
+		# Loop login/register
+		while True:
+			try:
+				log_op = conn.recv(1024).decode()
+				
+				if log_op == 'ingresar':
+					id_user = game.Login(conn,addr)
+					break
+				
+				elif log_op == 'registrar':
+					id_user = game.Register(conn,addr)
+					break
+				
+				elif log_op == 'salir':
+					game.Logout(conn,addr)
+					return
+
+				else:
+					conn.send("+ Opcion invalida, intenta nuevamente\n".encode())
+			except:
+				conn.close()
 				return
 
-			else:
-				conn.send("+ Opcion invalida, intenta nuevamente".encode())
-		except:
-			conn.close()
-			return
-
 	#monster = str(random.randint(1,5))	
-	monster = "2"
-
+	monster = "3"
+	print(id_user)
 	# Loop infinito para escuchar al cliente continuamente
 	while True:
 		try:
-			game.Battle(result,monster,conn)
+			game.Battle(id_user,monster,conn)
 		except:
 			conn.close()
 			return
 
-		try:
-			msgContinue = "+ Deseas continuar? [Y/N]"
-			while True:
-				conn.send(msgContinue.encode())
-				ans = conn.recv(1024).decode()
-				if ans == 'Y' or ans == 'y' or ans == 'yes':
-					break
-				elif ans == 'N' or ans == 'n' or ans =='no':
-					return
-				else:
-					msgContinue = "+ Opcion invalida, intenta nuevamente\n+ Deseas continuar? [Y/N]"
-					continue
-		except:
-			conn.close()
+		if game.Continue(conn):
+			continue
+		else:
+			game.Logout(conn,addr)
 			return
 
     # Termina loop         
