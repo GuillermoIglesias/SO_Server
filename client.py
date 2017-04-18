@@ -4,7 +4,7 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5054
+port = 5061
 
 def Main():
     while True:
@@ -31,7 +31,7 @@ def Main():
 
         # Menu login/register
         while True:
-            op_input = input('>>> ')
+            op_input = input('-> ')
 
             try:
                 mySocket.send(op_input.encode())
@@ -50,38 +50,19 @@ def Main():
                 print ('Servidor desconectado')
                 break
 
-        # Imprime monstruo inicial
-        #monsterSprite = mySocket.recv(1024).decode()
-        #print(monsterSprite)
         
         while True:
 	
-            startBattle = mySocket.recv(1024).decode()
+            startBattle = str(mySocket.recv(1024).decode())
             print(startBattle)
                
             message = input('>> ')
 
-
             try:
                 mySocket.send(message.encode())
-                data = mySocket.recv(1024).decode()      
+                data = str(mySocket.recv(1024).decode())      
                 print (data)
 
-                if data == '\n+ Ganaste ^.^!\n' or data == '\n+ Perdiste x.x\n':
-                	while True:
-                		question = mySocket.recv(1024).decode()
-                		print (question)	
-                		message = input('> ')
-                		mySocket.send(message.encode())
-                		if message == 'Y' or message == 'y' or message == 'yes':
-                			break
-                		elif message == 'N' or message == 'n' or message =='no':
-                			mySocket.close()
-                			return
-
-           	#if message == 'salir':
-			#mySocket.close()
-            #	return
             
             except:
                 print ('Servidor desconectado')
