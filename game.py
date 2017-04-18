@@ -7,7 +7,7 @@ import random
 # Credenciales de la base de datos
 hostname = "localhost"
 username = "postgres"
-password = "dragon"
+password = "jazzbebe123"
 database = "SocketDungeon"
 
 # Conexion db
@@ -167,6 +167,7 @@ def Battle(id_usr,monster,conn):
 		#conn.send(msgInicio.encode())
 		atk_usr = int(-1)
 		atk_monster_name = ""
+		atk_name = ""
 
 		# Elige monstruo
 		cur.execute("SELECT name,atk,maxhp FROM Monster where id = %s;",(monster,))
@@ -230,12 +231,15 @@ def Battle(id_usr,monster,conn):
 			# Verifica numero de ataque, dentro de la matriz
 			if atk == 'fuego' or atk == '1':
 				atk_usr = int(1)
+				atk_name = "fuego"
 				battle = mtr_atk[atkMonster][atk_usr]
 			elif atk == 'agua' or atk == '2':
 				atk_usr = int(0)
+				atk_name = "agua"
 				battle = mtr_atk[atkMonster][atk_usr]
 			elif atk == 'planta' or atk == '3':
 				atk_usr = int(2)
+				atk_name = "planta"
 				battle = mtr_atk[atkMonster][atk_usr]
 			else:
 				battle = '-1'
@@ -262,7 +266,8 @@ def Battle(id_usr,monster,conn):
 
 				# Mientras su vida sea mayor a cero
 				if res_vid_usr > 0:
-					msg1=("\n+ " + str(name_monster) + " a usado: " + str(atk_monster_name) + "\n+ Has perdido " +
+					msg1=("\n+ Has usado: "+ str(atk_name) + "\n+ " + str(name_monster) + " ha usado: " + str(atk_monster_name) + 
+					"\n+ Has perdido " +
 					 str(atk_monster)+ " hp\n"
 					+"+ Te queda "
 					+str(res_vid_usr)+" hp\n+ A " +str(name_monster) 
@@ -289,7 +294,8 @@ def Battle(id_usr,monster,conn):
 				print("Vida restante de monstruo: " + str(res_vid_mon))
 					# Mientras la vida de monstruo sea mayor a cero
 				if res_vid_mon > 0:
-					msg2=("\n+ " + str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ " + str(name_monster) + " ha perdido " 
+					msg2=("\n+ Has usado: "+ str(atk_name) + "\n+ " + str(name_monster)+ " ha usado: "+ str(atk_monster_name) 
+					+ "\n+ " + str(name_monster) + " ha perdido " 
 					+ str(atk_user)+ 
 					" hp\n+ Te queda "+str(res_vid_usr)+" hp\n+ A " 
 					+str(name_monster) +" le queda "+ str(res_vid_mon)+" hp \n")
@@ -311,7 +317,8 @@ def Battle(id_usr,monster,conn):
 				
 			# Si hacen el mismo ataque
 			elif battle == '0':
-				msg3=("\n+ " + str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ El ataque ha sido bloqueado\n+ Te queda "+str(res_vid_usr)+" hp\n+ A " 
+				msg3=("\n+ Has usado: "+ str(atk_name) + "\n+ " + str(name_monster)+ " ha usado: "+ str(atk_monster_name) + 
+					"\n+ El ataque ha sido bloqueado\n+ Te queda "+str(res_vid_usr)+" hp\n+ A " 
 					+str(name_monster) +" le queda "+ str(res_vid_mon)+" hp \n")
 				conn.send(msg3.encode())
 
