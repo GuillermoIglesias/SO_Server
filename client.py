@@ -1,10 +1,8 @@
-#!/usr/bin/python3
-
 import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5073
+port = 5070
 
 def Main():
 	# ID Usuario no logueado/registrado
@@ -71,7 +69,7 @@ def Main():
 			try:
 				mySocket.send(m.encode())
 			except:
-				print ('Servidor desconectado')
+				print ('Servidor desconectado 1')
 				break
 
 			if m == 'salir' or m == 'n' or m == 'N' or m == 'no':
@@ -82,7 +80,7 @@ def Main():
 				data = str(mySocket.recv(1024).decode())      
 				print (data)
 			except:
-				print ('Servidor desconectado')
+				print ('Servidor desconectado 2')
 				break
 
             
