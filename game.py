@@ -4,11 +4,13 @@ import psycopg2
 import re
 import random
 
+# Credenciales de la base de datos
 hostname = "localhost"
 username = "postgres"
 password = "dragon"
 database = "SocketDungeon"
 
+# Conexion db
 conexion = psycopg2.connect(host=hostname,user=username,password=password,dbname=database)
 cur      = conexion.cursor()
 
@@ -33,10 +35,11 @@ def Welcome(conn,addr):
 		conn.send(msgWelcome.encode())
 
 	else:
+		# buscar id usuario
 		cur.execute("SELECT username from player where id= %s;",(id_user,))
 		id_usr = cur.fetchall()
 		id_usrname = id_user[0][0]
-		msgWelcome = ("+ Bienvenido " + str(id_usrname))
+		msgWelcome = ("+ Reconectado: " + str(id_usrname))
 
 		conn.send(msgWelcome.encode())
 	
@@ -79,7 +82,6 @@ def Login(conn,addr):
 			msgError = "+ Error: username y/o password incorrectos\n\n+ Ingresa Username: "
 			conn.send(msgError.encode())
 		
-	print(idResult)
 	return idResult
 
 def Logout(conn,addr):
@@ -167,7 +169,6 @@ def Battle(id_usr,monster,conn):
 		atk_monster_name = ""
 
 		# Elige monstruo
-
 		cur.execute("SELECT name,atk,maxhp FROM Monster where id = %s;",(monster,))
 		datos_monster = cur.fetchall()
 		name_monster = datos_monster[0][0]
@@ -213,6 +214,7 @@ def Battle(id_usr,monster,conn):
 				   " | + [3] - [planta]      |\n"
 			  	   " +-----------------------+\n")
 
+			# Se ejecuta la primera vez para sprite dragon
 			if sprite == True:
 				msgBattle = MonsterSprite() + msgBattle
 				sprite = False
@@ -309,63 +311,40 @@ def Battle(id_usr,monster,conn):
 				
 			# Si hacen el mismo ataque
 			elif battle == '0':
-				msg3=("\n+ "+ str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ Ataques han sido bloqueados\n" + "+ Te quedan " 
-				+ str(res_vid_usr) + " de hp\n+ A " + str(name_monster) + " le quedan "+ str(res_vid_mon) + " de hp\n")
+				msg3=("\n+ " + str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ El ataque ha sido bloqueado\n+ Te queda "+str(res_vid_usr)+" hp\n+ A " 
+					+str(name_monster) +" le queda "+ str(res_vid_mon)+" hp \n")
 				conn.send(msg3.encode())
-			
+
 			else:
 				msgError = "\n+ Error: Valor invalido\n"
 				conn.send(msgError.encode())
 		
 		except:
-			continue
+			conn.close()
+			return
 		
 	return
 
 def Continue(conn):
 	while True:
+		try:	
+			# Preguntar si desea continuar
+			msgContinue = "\n+ Deseas continuar? [Y/N]"
+			conn.send(msgContinue.encode())
+			ans = conn.recv(1024).decode()
+				
+			if ans == 'Y' or ans == 'y' or ans == 'yes':
+				msgYes = "\n+ Reiniciando Monstruo +\n"
+				conn.send(msgYes.encode())
+				return False
 			
-		msgContinue = "\n+ Deseas continuar? [Y/N]"
-		conn.send(msgContinue.encode())
-		ans = conn.recv(1024).decode()
+			elif ans == 'N' or ans == 'n' or ans =='no':
+				return True
 			
-		if ans == 'Y' or ans == 'y' or ans == 'yes':
-			msgYes = "\n+ Reiniciando Monstruo +\n"
-			conn.send(msgYes.encode())
+			else:
+				msgError = "+ Opcion invalida, intenta nuevamente\n"
+				conn.send(msgError.encode())
+				continue
+		except:
+			conn.close()
 			return True
-		
-		elif ans == 'N' or ans == 'n' or ans =='no':
-			return False
-		
-		else:
-			msgError = "+ Opcion invalida, intenta nuevamente\n"
-			conn.send(msgError.encode())
-			continue
-
-
-
-# Solo para pruebas #
-def Main():
-	
-	try:
-		cur.execute("select pass from player where username = 'coco'")
-		resultado = cur.fetchall()
-		conexion.commit()
-		nombre=resultado[0][0]
-		print (nombre)
-	except:
-		print("Error")
-
-	print ("+-----------------------+\n"
-				   "| Selecciona un ataque: |\n"
-				   "| + [fuego]             |\n"
-				   "| + [agua]              |\n"
-				   "| + [planta]            |\n"
-			  	   "+-----------------------+\n")
-
-	hola = '+ Usuario validado: 23'
-	print (hola[:18])
-	print (hola[20:])
-
-if __name__ == '__main__':
-	Main()

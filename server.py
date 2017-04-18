@@ -7,7 +7,7 @@ from _thread import *
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5072
+port = 5073
 
 # Funcion para manejar conexiones por threads.
 def ClientThread(conn,addr):
@@ -41,7 +41,7 @@ def ClientThread(conn,addr):
 
 	#monster = str(random.randint(1,5))	
 	monster = "3"
-	print(id_user)
+
 	# Loop infinito para escuchar al cliente continuamente
 	while True:
 		try:
@@ -50,11 +50,13 @@ def ClientThread(conn,addr):
 			conn.close()
 			return
 
-		if game.Continue(conn):
-			continue
-		else:
+		gameOver = game.Continue(conn)
+			
+		if gameOver:
 			game.Logout(conn,addr)
 			return
+		else:
+			continue			
 
     # Termina loop         
 	conn.close()

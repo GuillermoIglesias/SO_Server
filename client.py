@@ -4,7 +4,7 @@ import socket
 
 # IP Server y puerto
 host = "127.0.0.1"
-port = 5072
+port = 5073
 
 def Main():
 	# ID Usuario no logueado/registrado
@@ -32,8 +32,6 @@ def Main():
 			except:
 				continue
 
-		print(":"+validate)
-
 		if validate == '-1':
 	        # Menu login/register
 			while True:
@@ -57,9 +55,8 @@ def Main():
 					print ('Servidor desconectado')
 					break
 
-		print("::"+validate)
 
-
+		# Loop batalla
 		while True:
 
 			try:
@@ -69,13 +66,17 @@ def Main():
 				print ('Servidor desconectado')
 				break
 
-			message = input('>> ')	
+			m = input('>> ')	
 
 			try:
-				mySocket.send(message.encode())
+				mySocket.send(m.encode())
 			except:
 				print ('Servidor desconectado')
 				break
+
+			if m == 'salir' or m == 'n' or m == 'N' or m == 'no':
+				mySocket.close()
+				return
 
 			try:
 				data = str(mySocket.recv(1024).decode())      
