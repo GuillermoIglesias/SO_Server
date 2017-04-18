@@ -292,7 +292,8 @@ def Battle(id_usr,monster,conn):
 				
 			# Si hacen el mismo ataque
 			elif battle == '0':
-				msg3=("\n+ Ataques bloqueados\n")
+				msg3=("\n+"+ str(name_monster)+ " a usado: "+ str(atk_monster_name) + "\n+ Ataques han sido bloqueados\n" + "+ Te quedan " +
+				str(res_vid_usr) + " de hp\n+ A" + str(name_monster) + " le quedan "+ str(res_vid_mon) + " de hp\n")
 				conn.send(msg3.encode())
 			
 			else:
