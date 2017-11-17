@@ -7,7 +7,7 @@ import random
 # Credenciales de la base de datos
 hostname = "localhost"
 username = "postgres"
-password = "jazzbebe123"
+password = "juuuuuum"
 database = "SocketDungeon"
 
 # Conexion db
